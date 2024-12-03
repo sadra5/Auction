@@ -20,16 +20,17 @@ contract auction {
     uint256 public highestBid;
     address public highestBidder;
 
-    uint256 startTime = block.timestamp;
-    uint256 endTime = startTime + 10;
+    uint256 startTime;
+    uint256 endTime = 10;
 
-    constructor (address _nftAddress) {
-        nftAddress = _nftAddress;
-        owner = msg.sender;
-    }
+    // constructor (address _nftAddress) {
+    //     nftAddress = _nftAddress;
+    //     owner = msg.sender;
+    // }
 
     function addBid() public payable {
 
+        require(startTime > 0, "The auction has not started yet");
         require(block.timestamp < endTime, "The auction has ended");
         require(msg.value > 0, "bid must be up zero");
         require((bidders[msg.sender] + msg.value) > highestBid, "there is a higer bid");
@@ -49,5 +50,8 @@ contract auction {
         }
     }
 
-// some comment to chage tho git
+    function list(uint256 _nftId) public {
+        startTime = block.timestamp;
+        endTime += startTime;
+    }
 }

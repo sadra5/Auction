@@ -17,6 +17,9 @@ describe("Auction", () => {
     
         // await auction.deployed();
 
+        transaction = await auction.connect(bidder2).list(1)
+        await transaction.wait()
+
         transaction = await auction.connect(bidder2).addBid({ value: tokens(1)})
         await transaction.wait()
     
@@ -59,6 +62,7 @@ describe("Auction", () => {
     })
     
     it("adding bids in timeline", async() => {
+
         await network.provider.send("evm_increaseTime", [11]);
         await network.provider.send("evm_mine");
 
