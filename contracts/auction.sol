@@ -23,10 +23,10 @@ contract auction {
     uint256 startTime = block.timestamp;
     uint256 endTime = startTime + 10;
 
-    // constructor (address _nftAddress) {
-    //     nftAddress = _nftAddress;
-    //     owner = msg.sender;
-    // }
+    constructor (address _nftAddress) {
+        nftAddress = _nftAddress;
+        owner = msg.sender;
+    }
 
     function addBid() public payable {
 
