@@ -14,19 +14,22 @@ contract auction {
 
     address public nftAddress;
     address public owner;
-
-    mapping(address => uint256) public bidders;
-
     uint256 public highestBid;
     address public highestBidder;
-
     uint256 startTime;
     uint256 endTime = 10;
 
-    // constructor (address _nftAddress) {
-    //     nftAddress = _nftAddress;
-    //     owner = msg.sender;
-    // }
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only owner can call this method");
+        _;
+    }
+
+    mapping(address => uint256) public bidders;
+
+    constructor (address _nftAddress) {
+        nftAddress = _nftAddress;
+        owner = msg.sender;
+    }
 
     function addBid() public payable {
 
@@ -50,7 +53,10 @@ contract auction {
         }
     }
 
-    function list(uint256 _nftId) public {
+    function list(uint256 _nftID) public {
+        
+        IERC721(nftAddress).transferFrom(msg.sender, address(this), _nftID);
+
         startTime = block.timestamp;
         endTime += startTime;
     }

@@ -9,32 +9,40 @@ describe("Auction", () => {
     let auction, bidder1, bidder2;
     
     beforeEach ( async () => {
+        [bidder1, bidder2, owner] = await ethers.getSigners()
 
+        const NFT = await ethers.getContractFactory("MyToken")
+        nft = await NFT.deploy(owner)
+
+        transaction = await nft.connect(owner).safeMint("https://ipfs.io/ipfs/QmTudSYeM7mz3PkYEWXWqPjomRPHogcMFSq7XAvsvsgAPS")
+        
         const Auction = await ethers.getContractFactory("auction");
-        [bidder1, bidder2] = await ethers.getSigners()
     
-        auction = await Auction.deploy();
-    
+        auction = await Auction.deploy(nft.target);
         // await auction.deployed();
 
-        transaction = await auction.connect(bidder2).list(1)
+        transaction = await nft.connect(owner).approve(auction.target, 1)
         await transaction.wait()
-
+        
+        transaction = await auction.connect(owner).list(1)
+        await transaction.wait()
+        
         transaction = await auction.connect(bidder2).addBid({ value: tokens(1)})
         await transaction.wait()
-    
+        
         transaction = await auction.connect(bidder1).addBid({ value : tokens(2) })
         await transaction.wait()
-
+        
         // transaction = await auction.connect(bidder1).addBid({ value: tokens(3)})
         // await transaction.wait()
-
+        
     })
-
+    
     it("adding bidds", async() => {
+        console.log(auction)
+        console.log(nft.target)
         const result = await auction.bidders(bidder1)
         expect(result).to.be.equal(tokens(2))
-
     })
 
     it("increasing the bid", async() => {
