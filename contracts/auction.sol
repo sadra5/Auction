@@ -28,6 +28,8 @@ contract auction {
     //     owner = msg.sender;
     // }
 
+    // testing, attention please
+    
     function addBid() public payable {
 
         require(block.timestamp < endTime, "The auction has ended");
