@@ -47,13 +47,13 @@ contract auction {
         return address(this).balance;
     }
 
-    function refund(address payable _bidder) public payable {
+    function refund(address payable _bidder) public payable onlyOwner{
         if ( bidders[_bidder] > 0) {
             _bidder.transfer(bidders[_bidder]);
         }
     }
 
-    function list(uint256 _nftID) public {
+    function list(uint256 _nftID) public onlyOwner {
         
         IERC721(nftAddress).transferFrom(msg.sender, address(this), _nftID);
 

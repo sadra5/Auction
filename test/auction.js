@@ -18,7 +18,7 @@ describe("Auction", () => {
         
         const Auction = await ethers.getContractFactory("auction");
     
-        auction = await Auction.deploy(nft.target);
+        auction = await Auction.connect(owner).deploy(nft.target);
         // await auction.deployed();
 
         transaction = await nft.connect(owner).approve(auction.target, 1)
@@ -38,9 +38,15 @@ describe("Auction", () => {
         
     })
     
+    it("listing nft, starting the auction", async() => {
+        const result = await nft.ownerOf(1)
+        expect(result).to.be.equal(auction.target)
+        expect(auction.connect(bidder1).list()).to.be.revertedWith("Only owner can call this method")
+    })
+
     it("adding bidds", async() => {
-        console.log(auction)
-        console.log(nft.target)
+        // console.log(auction)
+        // console.log(nft.target)
         const result = await auction.bidders(bidder1)
         expect(result).to.be.equal(tokens(2))
     })
