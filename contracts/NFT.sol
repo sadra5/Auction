@@ -7,7 +7,7 @@ import {ERC721URIStorage} from "@openzeppelin/contracts/token/ERC721/extensions/
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract MyToken is ERC721, ERC721URIStorage, Ownable {
-    uint256 private _nextTokenId;
+    uint256 private _nextTokenId = 1;
 
     constructor(address initialOwner)
         ERC721("MyToken", "MTK")
