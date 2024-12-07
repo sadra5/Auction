@@ -13,7 +13,7 @@ interface IERC721 {
 contract auction {
 
     address public nftAddress;
-    address public owner;
+    address payable public owner;
     uint256 public highestBid;
     address public highestBidder;
     uint256 startTime;
@@ -28,7 +28,7 @@ contract auction {
 
     constructor (address _nftAddress) {
         nftAddress = _nftAddress;
-        owner = msg.sender;
+        owner = payable(msg.sender);
     }
 
     function addBid() public payable {
@@ -59,5 +59,14 @@ contract auction {
 
         startTime = block.timestamp;
         endTime += startTime;
+    }
+
+    function finalaizeAuction(uint256 _nftID) public onlyOwner {
+        
+        require(block.timestamp >= endTime, "The auction has not ended yet");
+
+        owner.transfer(highestBid);
+
+        IERC721(nftAddress).transferFrom(address(this), highestBidder, _nftID);
     }
 }
