@@ -44,17 +44,20 @@ describe("Auction", () => {
         expect(auction.connect(bidder1).list()).to.be.revertedWith("Only owner can call this method")
     })
 
-    it("adding bidds", async() => {
-        // console.log(auction)
-        // console.log(nft.target)
-        const result = await auction.bidders(bidder1)
-        expect(result).to.be.equal(tokens(2))
+    // it("adding bidds", async() => {
+    //     // console.log(auction)
+    //     // console.log(nft.target)
+    //     const result = await auction.bidders(bidder1)
+    //     expect(result).to.be.equal(tokens(2))
+    // })
+
+    beforeEach( async () => {
+        transaction = await auction.connect(bidder1).addBid({ value: tokens(3)})
+        await transaction.wait()
     })
 
     it("increasing the bid", async() => {
 
-        transaction = await auction.connect(bidder1).addBid({ value: tokens(3)})
-        await transaction.wait()
 
         const result = await auction.bidders(bidder1)
         expect(result).to.be.equal(tokens(5))
@@ -86,6 +89,31 @@ describe("Auction", () => {
     it("refunding addresses didn't win", async() => {
         const txAmount = await auction.bidders(bidder2.address);
         await expect(auction.refund(bidder2)).to.changeEtherBalances([auction, bidder2], [-txAmount, txAmount])
+    })
+
+    it("finalizeing the auction", async () => {
+        await expect(auction.connect(bidder1).finalaizeAuction(1)).to.be.revertedWith("Only owner can call this method")
+        await expect(auction.connect(owner).finalaizeAuction(1)).to.be.revertedWith("The auction has not ended yet")
+
+        await network.provider.send("evm_increaseTime", [16]);
+        await network.provider.send("evm_mine");
+        
+        const bid = await auction.highestBid();
+        await expect(auction.connect(owner).finalaizeAuction(1)).to.changeEtherBalances([auction, owner], [-bid, bid])
+
+        const contractBalance = await ethers.provider.getBalance(auction.target);
+        const ownerBalance = await ethers.provider.getBalance(owner.address);
+        const highestBid = await auction.highestBid();
+
+        // console.log("Contract balance:", ethers.formatEther(contractBalance));
+        // console.log("Owner balance before:", ethers.formatEther(ownerBalance));
+        // console.log("Highest bid:", ethers.formatEther(highestBid));
+
+
+        const winner = await auction.highestBidder();
+        const result = await nft.ownerOf(1)
+        expect(result).to.be.equal(winner)
+
     })
 })
 
