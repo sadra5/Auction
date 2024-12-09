@@ -65,7 +65,8 @@ contract auction {
         
         require(block.timestamp >= endTime, "The auction has not ended yet");
 
-        owner.transfer(highestBid);
+        (bool sent, ) = owner.call{value: highestBid}("");
+        require(sent, "Failed to send Ether");
 
         IERC721(nftAddress).transferFrom(address(this), highestBidder, _nftID);
     }

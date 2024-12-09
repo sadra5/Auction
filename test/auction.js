@@ -95,18 +95,24 @@ describe("Auction", () => {
         await expect(auction.connect(bidder1).finalaizeAuction(1)).to.be.revertedWith("Only owner can call this method")
         await expect(auction.connect(owner).finalaizeAuction(1)).to.be.revertedWith("The auction has not ended yet")
 
-        await network.provider.send("evm_increaseTime", [11]);
+        await network.provider.send("evm_increaseTime", [16]);
         await network.provider.send("evm_mine");
         
         const bid = await auction.highestBid();
         await expect(auction.connect(owner).finalaizeAuction(1)).to.changeEtherBalances([auction, owner], [-bid, bid])
 
-        
-        // const winner = await auction.highestBidder();
-        transaction = await auction.connect(owner).finalaizeAuction(1)
-        // await transaction.wait()
-        // const result = await nft.ownerOf(1)
-        // expect(result).to.be.equal(winner)
+        const contractBalance = await ethers.provider.getBalance(auction.target);
+        const ownerBalance = await ethers.provider.getBalance(owner.address);
+        const highestBid = await auction.highestBid();
+
+        // console.log("Contract balance:", ethers.formatEther(contractBalance));
+        // console.log("Owner balance before:", ethers.formatEther(ownerBalance));
+        // console.log("Highest bid:", ethers.formatEther(highestBid));
+
+
+        const winner = await auction.highestBidder();
+        const result = await nft.ownerOf(1)
+        expect(result).to.be.equal(winner)
 
     })
 })
